@@ -1,0 +1,12 @@
+name = "Custom"
+license = "MIT"
+licenselink = "https://github.com/smartango/smartango.github.io/blob/main/LICENSE"
+description = "A custom theme for Smartango consulting services"
+homepage = "https://smartango.github.io/"
+tags = ["responsive", "clean", "modern"]
+features = ["responsive", "custom-css"]
+min_version = "0.100.0"
+
+[author]
+  name = "Daniele Cruciani"
+  homepage = "https://github.com/smartango"

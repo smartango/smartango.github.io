@@ -1,0 +1,14 @@
+{{ define "main" }}
+<div class="home-hero">
+    <div class="container">
+        <h1>{{ .Site.Title }}</h1>
+        <p class="tagline">{{ .Site.Params.description }}</p>
+    </div>
+</div>
+
+<div class="container">
+    <article class="content home-content">
+        {{ .Content }}
+    </article>
+</div>
+{{ end }}

@@ -1,0 +1,35 @@
+baseURL = 'https://smartango.github.io/'
+languageCode = 'en-us'
+title = 'Smartango - Cloud Native Consulting'
+theme = 'custom'
+
+[params]
+  description = 'Cloud native application development and consulting services'
+  author = 'Daniele Cruciani'
+  phone = '+39 3489215204'
+
+[menu]
+  [[menu.main]]
+    name = 'Home'
+    url = '/'
+    weight = 1
+  
+  [[menu.main]]
+    name = 'Products'
+    url = '/products/'
+    weight = 2
+  
+  [[menu.main]]
+    name = 'GatearwayMan'
+    url = '/products/gatearwayman/'
+    weight = 3
+  
+  [[menu.main]]
+    name = 'Contact'
+    url = '/#contact'
+    weight = 4
+
+[markup]
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = true
