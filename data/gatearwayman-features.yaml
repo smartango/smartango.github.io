@@ -13,7 +13,7 @@ features:
     
   - name: Persistent SMS Storage
     status: Planned
-    description: Storage layer for SMS: Service Manager's Services Definitions
+    description: "Storage layer for SMS: Service Manager's Services Definitions"
     
   - name: AuthServ (Legacy)
     status: Planned
