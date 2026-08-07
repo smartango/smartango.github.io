@@ -7,24 +7,48 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Configuration state
     const config = {
-        serviceName: 'gatearwayman',
-        version: 'latest',
-        replicas: 1,
-        port: 8080,
-        hostPort: 80,
-        network: 'gateway_network',
-        authEnabled: false,
-        jwtSecret: '',
-        backends: '',
-        routingRules: '',
-        enableMetrics: true,
-        metricsPort: 9090,
-        enableHealthCheck: true,
-        healthCheckPath: '/health',
-        cpuLimit: '0.5',
-        memoryLimit: '512M',
-        logLevel: 'info'
+        networkName: 'gateway_network',
+        networkExternal: true,
+        traefikVersion: 'v2',
+        
+        // GatearwayMan GUI
+        guiImage: 'smartango/gatearwayman-gui:latest',
+        guiReplicas: 1,
+        guiHost: 'gateway.example.com',
+        guiPort: 80,
+        
+        // GatearwayMan Backend
+        backendEnabled: false,
+        backendImage: 'smartango/gatearwayman:latest',
+        backendReplicas: 1,
+        backendHost: 'api.example.com',
+        backendPort: 8080,
+        backendCpuLimit: '0.5',
+        backendMemoryLimit: '512M'
     };
+    
+    // Generate Traefik labels
+    function generateTraefikLabels(serviceName, host, port, version) {
+        const labels = {};
+        
+        if (version === 'v1') {
+            // Traefik v1.7.x labels
+            labels['traefik.enable'] = 'true';
+            labels['traefik.frontend.rule'] = `Host:${host}`;
+            labels['traefik.port'] = port.toString();
+            labels['traefik.docker.network'] = config.networkName;
+        } else {
+            // Traefik v2.x labels
+            const routerName = serviceName.replace(/[^a-zA-Z0-9]/g, '-');
+            labels['traefik.enable'] = 'true';
+            labels[`traefik.http.routers.${routerName}.rule`] = `Host(\`${host}\`)`;
+            labels[`traefik.http.routers.${routerName}.entrypoints`] = 'web';
+            labels[`traefik.http.services.${routerName}.loadbalancer.server.port`] = port.toString();
+            labels['traefik.docker.network'] = config.networkName;
+        }
+        
+        return Object.entries(labels).map(([k, v]) => `${k}=${v}`);
+    }
     
     // Convert JS object to YAML
     function toYAML(obj, indent = 0) {
@@ -53,8 +77,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 yaml += `${spaces}${key}:\n`;
                 yaml += toYAML(value, indent + 1);
             } else {
-                const needsQuotes = typeof value === 'string' && (value.includes(':') || value.match(/^\d+$/));
-                const formattedValue = needsQuotes ? `'${value}'` : value;
+                // Handle strings, numbers, booleans
+                let formattedValue = value;
+                if (typeof value === 'string') {
+                    const needsQuotes = value.includes(':') || value.match(/^\d+$/) || value.includes('#');
+                    formattedValue = needsQuotes ? `'${value}'` : value;
+                }
                 yaml += `${spaces}${key}: ${formattedValue}\n`;
             }
         }
@@ -64,80 +92,56 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Build Docker Compose JSON structure
     function buildComposeObject() {
-        const environment = [
-            `LOG_LEVEL=${config.logLevel}`,
-            `SERVICE_PORT=${config.port}`
-        ];
+        const services = {};
         
-        if (config.authEnabled && config.jwtSecret) {
-            environment.push('AUTH_ENABLED=true');
-            environment.push(`JWT_SECRET=${config.jwtSecret}`);
-        }
+        // GatearwayMan GUI Service (always included)
+        const guiLabels = generateTraefikLabels('gatearwayman-gui', config.guiHost, config.guiPort, config.traefikVersion);
         
-        if (config.backends) {
-            environment.push(`BACKENDS=${config.backends}`);
-        }
-        
-        if (config.routingRules) {
-            environment.push(`ROUTING_RULES=${config.routingRules}`);
-        }
-        
-        if (config.enableMetrics) {
-            environment.push('METRICS_ENABLED=true');
-            environment.push(`METRICS_PORT=${config.metricsPort}`);
-        }
-        
-        if (config.enableHealthCheck) {
-            environment.push(`HEALTH_CHECK_PATH=${config.healthCheckPath}`);
-        }
-        
-        const service = {
-            image: `smartango/gatearwayman:${config.version}`,
+        services['gatearwayman-gui'] = {
+            image: config.guiImage,
             deploy: {
-                replicas: config.replicas,
+                replicas: config.guiReplicas,
                 restart_policy: {
-                    condition: 'on-failure',
-                    delay: '5s',
-                    max_attempts: 3
+                    condition: 'on-failure'
                 },
-                resources: {
-                    limits: {
-                        cpus: config.cpuLimit,
-                        memory: config.memoryLimit
-                    },
-                    reservations: {
-                        cpus: '0.25',
-                        memory: '256M'
-                    }
-                },
-                labels: ['com.smartango.service=gatearwayman']
+                labels: guiLabels
             },
-            ports: [`${config.hostPort}:${config.port}`],
-            networks: [config.network],
-            environment: environment
+            networks: [config.networkName]
         };
         
-        if (config.enableHealthCheck) {
-            service.healthcheck = {
-                test: ['CMD', 'curl', '-f', `http://localhost:${config.port}${config.healthCheckPath}`],
-                interval: '30s',
-                timeout: '10s',
-                retries: 3,
-                start_period: '40s'
+        // GatearwayMan Backend Service (optional)
+        if (config.backendEnabled) {
+            const backendLabels = generateTraefikLabels('gatearwayman-backend', config.backendHost, config.backendPort, config.traefikVersion);
+            
+            services['gatearwayman-backend'] = {
+                image: config.backendImage,
+                deploy: {
+                    replicas: config.backendReplicas,
+                    restart_policy: {
+                        condition: 'on-failure'
+                    },
+                    resources: {
+                        limits: {
+                            cpus: config.backendCpuLimit,
+                            memory: config.backendMemoryLimit
+                        }
+                    },
+                    labels: backendLabels
+                },
+                networks: [config.networkName]
             };
         }
         
+        // Network configuration
+        const networks = {};
+        networks[config.networkName] = config.networkExternal 
+            ? { external: true }
+            : { driver: 'overlay' };
+        
         return {
             version: '3.8',
-            services: {
-                [config.serviceName]: service
-            },
-            networks: {
-                [config.network]: {
-                    driver: 'overlay',
-                    attachable: true
-                }
-            }
+            services: services,
+            networks: networks
         };
     }
     
@@ -147,133 +151,109 @@ document.addEventListener('DOMContentLoaded', function() {
         return toYAML(composeObj);
     }
     
+    
     // Render the form
     function render() {
         root.innerHTML = `
             <div class="yaml-generator">
                 <h3>Docker Swarm Deployment Configuration</h3>
-                <p>Customize your GatearwayMan deployment configuration:</p>
+                <p>Generate your GatearwayMan stack configuration with Traefik integration:</p>
                 
                 <form id="yaml-form">
                     <div class="form-section">
-                        <h4>Basic Configuration</h4>
+                        <h4>Network Configuration</h4>
                         
                         <div class="form-group">
-                            <label for="serviceName">Service Name</label>
-                            <input type="text" id="serviceName" name="serviceName" value="${config.serviceName}">
+                            <label for="networkName">Network Name</label>
+                            <input type="text" id="networkName" name="networkName" value="${config.networkName}">
                         </div>
-                        
-                        <div class="form-group">
-                            <label for="version">Version</label>
-                            <input type="text" id="version" name="version" value="${config.version}" placeholder="e.g., latest, 1.0.0">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="replicas">Number of Replicas</label>
-                            <input type="number" id="replicas" name="replicas" value="${config.replicas}" min="1">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="port">Container Port</label>
-                            <input type="number" id="port" name="port" value="${config.port}">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="hostPort">Host Port</label>
-                            <input type="number" id="hostPort" name="hostPort" value="${config.hostPort}">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="network">Network Name</label>
-                            <input type="text" id="network" name="network" value="${config.network}">
-                        </div>
-                    </div>
-                    
-                    <div class="form-section">
-                        <h4>Authentication</h4>
                         
                         <div class="form-group">
                             <label>
-                                <input type="checkbox" id="authEnabled" name="authEnabled" ${config.authEnabled ? 'checked' : ''}>
-                                Enable JWT Authentication
+                                <input type="checkbox" id="networkExternal" name="networkExternal" ${config.networkExternal ? 'checked' : ''}>
+                                External Network (already exists)
                             </label>
                         </div>
-                        
-                        <div class="form-group" id="jwtSecretGroup" style="display: ${config.authEnabled ? 'block' : 'none'}">
-                            <label for="jwtSecret">JWT Secret</label>
-                            <input type="password" id="jwtSecret" name="jwtSecret" value="${config.jwtSecret}" placeholder="Enter a secure secret">
-                        </div>
                     </div>
                     
                     <div class="form-section">
-                        <h4>Backend Services & Routing</h4>
+                        <h4>Traefik Configuration</h4>
                         
                         <div class="form-group">
-                            <label for="backends">Backend Services</label>
-                            <textarea id="backends" name="backends" rows="3" placeholder="http://service1:8080,http://service2:8080">${config.backends}</textarea>
-                            <small>Comma-separated list of backend service URLs</small>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="routingRules">Routing Rules</label>
-                            <textarea id="routingRules" name="routingRules" rows="3" placeholder="/api/*->service1,/app/*->service2">${config.routingRules}</textarea>
-                            <small>Path patterns and their target services</small>
-                        </div>
-                    </div>
-                    
-                    <div class="form-section">
-                        <h4>Metrics & Monitoring</h4>
-                        
-                        <div class="form-group">
-                            <label>
-                                <input type="checkbox" id="enableMetrics" name="enableMetrics" ${config.enableMetrics ? 'checked' : ''}>
-                                Enable Prometheus Metrics
-                            </label>
-                        </div>
-                        
-                        <div class="form-group" id="metricsPortGroup" style="display: ${config.enableMetrics ? 'block' : 'none'}">
-                            <label for="metricsPort">Metrics Port</label>
-                            <input type="number" id="metricsPort" name="metricsPort" value="${config.metricsPort}">
-                        </div>
-                    </div>
-                    
-                    <div class="form-section">
-                        <h4>Health Check</h4>
-                        
-                        <div class="form-group">
-                            <label>
-                                <input type="checkbox" id="enableHealthCheck" name="enableHealthCheck" ${config.enableHealthCheck ? 'checked' : ''}>
-                                Enable Health Check
-                            </label>
-                        </div>
-                        
-                        <div class="form-group" id="healthCheckPathGroup" style="display: ${config.enableHealthCheck ? 'block' : 'none'}">
-                            <label for="healthCheckPath">Health Check Path</label>
-                            <input type="text" id="healthCheckPath" name="healthCheckPath" value="${config.healthCheckPath}">
-                        </div>
-                    </div>
-                    
-                    <div class="form-section">
-                        <h4>Resource Limits</h4>
-                        
-                        <div class="form-group">
-                            <label for="cpuLimit">CPU Limit</label>
-                            <input type="text" id="cpuLimit" name="cpuLimit" value="${config.cpuLimit}" placeholder="e.g., 0.5, 1.0, 2.0">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="memoryLimit">Memory Limit</label>
-                            <input type="text" id="memoryLimit" name="memoryLimit" value="${config.memoryLimit}" placeholder="e.g., 512M, 1G">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="logLevel">Log Level</label>
-                            <select id="logLevel" name="logLevel">
-                                <option value="debug" ${config.logLevel === 'debug' ? 'selected' : ''}>Debug</option>
-                                <option value="info" ${config.logLevel === 'info' ? 'selected' : ''}>Info</option>
-                                <option value="warn" ${config.logLevel === 'warn' ? 'selected' : ''}>Warning</option>
-                                <option value="error" ${config.logLevel === 'error' ? 'selected' : ''}>Error</option>
+                            <label for="traefikVersion">Traefik Version</label>
+                            <select id="traefikVersion" name="traefikVersion">
+                                <option value="v1" ${config.traefikVersion === 'v1' ? 'selected' : ''}>Traefik v1.7.x</option>
+                                <option value="v2" ${config.traefikVersion === 'v2' ? 'selected' : ''}>Traefik v2.x</option>
                             </select>
+                            <small>Choose the version of Traefik for label generation</small>
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h4>GatearwayMan GUI</h4>
+                        
+                        <div class="form-group">
+                            <label for="guiImage">Docker Image</label>
+                            <input type="text" id="guiImage" name="guiImage" value="${config.guiImage}">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="guiReplicas">Replicas</label>
+                            <input type="number" id="guiReplicas" name="guiReplicas" value="${config.guiReplicas}" min="1">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="guiHost">Host (Domain)</label>
+                            <input type="text" id="guiHost" name="guiHost" value="${config.guiHost}" placeholder="gateway.example.com">
+                            <small>Domain name for Traefik routing</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="guiPort">Container Port</label>
+                            <input type="number" id="guiPort" name="guiPort" value="${config.guiPort}">
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h4>GatearwayMan Backend (Optional)</h4>
+                        
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" id="backendEnabled" name="backendEnabled" ${config.backendEnabled ? 'checked' : ''}>
+                                Enable Backend Service
+                            </label>
+                        </div>
+                        
+                        <div id="backendConfig" style="display: ${config.backendEnabled ? 'block' : 'none'}">
+                            <div class="form-group">
+                                <label for="backendImage">Docker Image</label>
+                                <input type="text" id="backendImage" name="backendImage" value="${config.backendImage}">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="backendReplicas">Replicas</label>
+                                <input type="number" id="backendReplicas" name="backendReplicas" value="${config.backendReplicas}" min="1">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="backendHost">Host (Domain)</label>
+                                <input type="text" id="backendHost" name="backendHost" value="${config.backendHost}" placeholder="api.example.com">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="backendPort">Container Port</label>
+                                <input type="number" id="backendPort" name="backendPort" value="${config.backendPort}">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="backendCpuLimit">CPU Limit</label>
+                                <input type="text" id="backendCpuLimit" name="backendCpuLimit" value="${config.backendCpuLimit}" placeholder="e.g., 0.5, 1.0">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="backendMemoryLimit">Memory Limit</label>
+                                <input type="text" id="backendMemoryLimit" name="backendMemoryLimit" value="${config.backendMemoryLimit}" placeholder="e.g., 512M, 1G">
+                            </div>
                         </div>
                     </div>
                     
@@ -307,13 +287,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 config[name] = target.checked;
                 
                 // Show/hide conditional fields
-                if (name === 'authEnabled') {
-                    document.getElementById('jwtSecretGroup').style.display = target.checked ? 'block' : 'none';
-                } else if (name === 'enableMetrics') {
-                    document.getElementById('metricsPortGroup').style.display = target.checked ? 'block' : 'none';
-                } else if (name === 'enableHealthCheck') {
-                    document.getElementById('healthCheckPathGroup').style.display = target.checked ? 'block' : 'none';
+                if (name === 'backendEnabled') {
+                    document.getElementById('backendConfig').style.display = target.checked ? 'block' : 'none';
                 }
+            } else if (target.type === 'number') {
+                config[name] = parseInt(target.value, 10);
             } else {
                 config[name] = target.value;
             }
