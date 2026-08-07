@@ -300,6 +300,28 @@ body {
     margin-top: 1rem;
 }
 
+.form-section {
+    margin-bottom: 2.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.form-section:last-of-type {
+    border-bottom: none;
+}
+
+.form-section h4 {
+    margin-bottom: 1rem;
+    color: var(--secondary-color);
+    font-size: 1.25rem;
+}
+
+.form-actions {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 2px solid var(--border-color);
+}
+
 /* Footer */
 .site-footer {
     background: var(--light-bg);
