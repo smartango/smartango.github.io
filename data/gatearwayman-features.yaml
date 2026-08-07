@@ -13,11 +13,11 @@ features:
     
   - name: Persistent SMS Storage
     status: Planned
-    description: Storage layer for SMS message persistence and retrieval
+    description: Storage layer for SMS: Service Manager's Services Definitions
     
   - name: AuthServ (Legacy)
     status: Planned
-    description: Legacy authentication service for backward compatibility
+    description: Legacy authentication service based on Long-Lived JWT signed by secure algo.
     
   - name: AuthServ (Standard)
     status: Planned
@@ -25,8 +25,8 @@ features:
     
   - name: GW Image
     status: Planned
-    description: Gateway image service for image processing and transformation
+    description: Gateway image for exposing REST API endpoints
     
   - name: HSQL Service
     status: Planned
-    description: HyperSQL database service for persistent data storage
+    description: HyperSQL database service for accessing db from gwimage's entrypoint

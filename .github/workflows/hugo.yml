@@ -65,6 +65,10 @@ jobs:
             --minify \
             --baseURL "${{ steps.pages.outputs.base_url }}/"
       
+      - name: Remove ignored files from build
+        run: |
+          rm -rf ./public/readme ./public/README
+      
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
