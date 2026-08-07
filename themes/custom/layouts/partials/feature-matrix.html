@@ -1,0 +1,30 @@
+<div class="feature-matrix">
+  <table>
+    <thead>
+      <tr>
+        <th>Service/Feature</th>
+        <th>Status</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{ range .Site.Data.gatearwayman_features.features }}
+      <tr>
+        <td><strong>{{ .name }}</strong></td>
+        <td>
+          {{ if eq .status "Released" }}
+          <span class="status-badge status-released">✅ Released</span>
+          {{ else if eq .status "WIP" }}
+          <span class="status-badge status-wip">🚧 WIP</span>
+          {{ else if eq .status "Define Requirements" }}
+          <span class="status-badge status-requirements">📝 Define Requirements</span>
+          {{ else if eq .status "Planned" }}
+          <span class="status-badge status-planned">📋 Planned</span>
+          {{ end }}
+        </td>
+        <td>{{ .description }}</td>
+      </tr>
+      {{ end }}
+    </tbody>
+  </table>
+</div>
