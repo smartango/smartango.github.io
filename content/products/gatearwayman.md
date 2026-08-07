@@ -19,33 +19,48 @@ GatearwayMan simplifies the management of your application gateway layer, provid
 
 ## Development Status
 
+GatearwayMan is organized into multiple services and features, each at different stages of development.
+
 <div class="feature-matrix">
 
-| Feature | Status | Description |
-|---------|--------|-------------|
-| Basic Routing | ✅ Complete | Route requests to backend services |
-| Path-based Routing | ✅ Complete | Route based on URL paths |
-| Host-based Routing | ✅ Complete | Route based on host headers |
-| JWT Authentication | ✅ Complete | JSON Web Token authentication |
-| OAuth2 Integration | 🚧 In Development | OAuth2 authentication provider |
-| Rate Limiting | 🚧 In Development | Request rate limiting per client |
-| Circuit Breaker | 🚧 In Development | Fault tolerance patterns |
-| Metrics & Monitoring | ✅ Complete | Prometheus metrics export |
-| Health Checks | ✅ Complete | Backend health monitoring |
-| TLS Termination | ✅ Complete | HTTPS/TLS support |
-| WebSocket Support | 🚧 In Development | WebSocket proxy support |
-| gRPC Support | 📋 Planned | gRPC protocol support |
-| Load Balancing | ✅ Complete | Round-robin and weighted balancing |
-| Session Affinity | 🚧 In Development | Sticky session support |
-| Request Transformation | 📋 Planned | Header and body transformations |
-| Response Caching | 📋 Planned | Response cache layer |
+<table>
+<thead>
+<tr>
+<th>Service/Feature</th>
+<th>Status</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+{{ range .Site.Data.gatearwayman_features.features }}
+<tr>
+<td><strong>{{ .name }}</strong></td>
+<td>
+{{ if eq .status "Released" }}
+<span class="status-badge status-released">✅ Released</span>
+{{ else if eq .status "WIP" }}
+<span class="status-badge status-wip">🚧 WIP</span>
+{{ else if eq .status "Define Requirements" }}
+<span class="status-badge status-requirements">📝 Define Requirements</span>
+{{ else if eq .status "Planned" }}
+<span class="status-badge status-planned">📋 Planned</span>
+{{ end }}
+</td>
+<td>{{ .description }}</td>
+</tr>
+{{ end }}
+</tbody>
+</table>
 
 </div>
 
-**Legend:**
-- ✅ Complete: Feature is production-ready
-- 🚧 In Development: Feature is currently being developed
-- 📋 Planned: Feature is planned for future release
+**Status Legend:**
+- ✅ **Released**: Feature is production-ready and deployed
+- 🚧 **WIP**: Work in progress - actively being developed
+- 📝 **Define Requirements**: Requirements gathering phase
+- 📋 **Planned**: Planned for future development
+
+> **Note**: To update the feature status, edit the `data/gatearwayman-features.yaml` file.
 
 ## Deployment Configuration Generator
 

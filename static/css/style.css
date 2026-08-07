@@ -159,6 +159,36 @@ body {
     background: var(--light-bg);
 }
 
+/* Status Badges */
+.status-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.status-released {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.status-wip {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.status-requirements {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.status-planned {
+    background: #e5e7eb;
+    color: #374151;
+}
+
 /* YAML Generator */
 #yaml-generator-root {
     margin: 3rem 0;

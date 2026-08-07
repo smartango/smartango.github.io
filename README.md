@@ -71,6 +71,8 @@ To enable GitHub Pages deployment:
 │   └── products/
 │       ├── _index.md         # Products listing
 │       └── gatearwayman.md     # GatearwayMan product page
+├── data/                      # Data files (YAML)
+│   └── gatearwayman-features.yaml  # GatearwayMan feature status
 ├── static/                    # Static assets
 │   ├── css/
 │   │   └── style.css         # Site styles
@@ -92,6 +94,18 @@ To enable GitHub Pages deployment:
 ├── .gitignore
 └── README.md
 ```
+
+## Updating Feature Status
+
+To update the development status of GatearwayMan features:
+
+1. Edit `data/gatearwayman-features.yaml`
+2. Change the `status` field for any feature:
+   - `Released` - Feature is production-ready and deployed
+   - `WIP` - Work in progress, actively being developed
+   - `Define Requirements` - Requirements gathering phase
+   - `Planned` - Planned for future development
+3. Commit and push - the site will automatically rebuild
 
 ## Features
 

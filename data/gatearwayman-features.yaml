@@ -1,0 +1,32 @@
+features:
+  - name: GUI
+    status: Released
+    description: Web-based graphical user interface for configuration and monitoring
+    
+  - name: Backend serving GUI
+    status: Released
+    description: Backend service that serves the GUI application
+    
+  - name: Service Manager (Go Service)
+    status: Planned
+    description: Core service manager written in Go for routing and orchestration
+    
+  - name: Persistent SMS Storage
+    status: Planned
+    description: Storage layer for SMS message persistence and retrieval
+    
+  - name: AuthServ (Legacy)
+    status: Planned
+    description: Legacy authentication service for backward compatibility
+    
+  - name: AuthServ (Standard)
+    status: Planned
+    description: Modern authentication service with OAuth2 and JWT support
+    
+  - name: GW Image
+    status: Planned
+    description: Gateway image service for image processing and transformation
+    
+  - name: HSQL Service
+    status: Planned
+    description: HyperSQL database service for persistent data storage
