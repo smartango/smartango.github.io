@@ -3,6 +3,8 @@ languageCode = 'en-us'
 title = 'Smartango - Cloud Native Consulting'
 theme = 'custom'
 
+ignoreFiles = ['README\\.md$']
+
 [params]
   description = 'Cloud native application development and consulting services'
   author = 'Daniele Cruciani'
