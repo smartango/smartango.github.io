@@ -26,79 +26,125 @@ document.addEventListener('DOMContentLoaded', function() {
         logLevel: 'info'
     };
     
-    // Build YAML from config
-    function buildYAML() {
-        const envVars = [
-            `      - LOG_LEVEL=${config.logLevel}`,
-            `      - SERVICE_PORT=${config.port}`
+    // Convert JS object to YAML
+    function toYAML(obj, indent = 0) {
+        const spaces = '  '.repeat(indent);
+        let yaml = '';
+        
+        for (const key in obj) {
+            const value = obj[key];
+            
+            if (value === null || value === undefined) {
+                continue;
+            }
+            
+            if (Array.isArray(value)) {
+                yaml += `${spaces}${key}:\n`;
+                value.forEach(item => {
+                    if (typeof item === 'object' && item !== null) {
+                        yaml += `${spaces}- `;
+                        const itemYaml = toYAML(item, indent + 1);
+                        yaml += itemYaml.substring((indent + 1) * 2 + 2);
+                    } else {
+                        yaml += `${spaces}- ${item}\n`;
+                    }
+                });
+            } else if (typeof value === 'object' && value !== null) {
+                yaml += `${spaces}${key}:\n`;
+                yaml += toYAML(value, indent + 1);
+            } else {
+                const needsQuotes = typeof value === 'string' && (value.includes(':') || value.match(/^\d+$/));
+                const formattedValue = needsQuotes ? `'${value}'` : value;
+                yaml += `${spaces}${key}: ${formattedValue}\n`;
+            }
+        }
+        
+        return yaml;
+    }
+    
+    // Build Docker Compose JSON structure
+    function buildComposeObject() {
+        const environment = [
+            `LOG_LEVEL=${config.logLevel}`,
+            `SERVICE_PORT=${config.port}`
         ];
         
         if (config.authEnabled && config.jwtSecret) {
-            envVars.push(`      - AUTH_ENABLED=true`);
-            envVars.push(`      - JWT_SECRET=${config.jwtSecret}`);
+            environment.push('AUTH_ENABLED=true');
+            environment.push(`JWT_SECRET=${config.jwtSecret}`);
         }
         
         if (config.backends) {
-            envVars.push(`      - BACKENDS=${config.backends}`);
+            environment.push(`BACKENDS=${config.backends}`);
         }
         
         if (config.routingRules) {
-            envVars.push(`      - ROUTING_RULES=${config.routingRules}`);
+            environment.push(`ROUTING_RULES=${config.routingRules}`);
         }
         
         if (config.enableMetrics) {
-            envVars.push(`      - METRICS_ENABLED=true`);
-            envVars.push(`      - METRICS_PORT=${config.metricsPort}`);
+            environment.push('METRICS_ENABLED=true');
+            environment.push(`METRICS_PORT=${config.metricsPort}`);
         }
         
         if (config.enableHealthCheck) {
-            envVars.push(`      - HEALTH_CHECK_PATH=${config.healthCheckPath}`);
+            environment.push(`HEALTH_CHECK_PATH=${config.healthCheckPath}`);
         }
         
-        const healthCheckSection = config.enableHealthCheck ? `
-      test: ["CMD", "curl", "-f", "http://localhost:${config.port}${config.healthCheckPath}"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s` : '';
+        const service = {
+            image: `smartango/gatearwayman:${config.version}`,
+            deploy: {
+                replicas: config.replicas,
+                restart_policy: {
+                    condition: 'on-failure',
+                    delay: '5s',
+                    max_attempts: 3
+                },
+                resources: {
+                    limits: {
+                        cpus: config.cpuLimit,
+                        memory: config.memoryLimit
+                    },
+                    reservations: {
+                        cpus: '0.25',
+                        memory: '256M'
+                    }
+                },
+                labels: ['com.smartango.service=gatearwayman']
+            },
+            ports: [`${config.hostPort}:${config.port}`],
+            networks: [config.network],
+            environment: environment
+        };
         
-        return `version: '3.8'
-
-services:
-  ${config.serviceName}:
-    image: smartango/gatearwayman:${config.version}
+        if (config.enableHealthCheck) {
+            service.healthcheck = {
+                test: ['CMD', 'curl', '-f', `http://localhost:${config.port}${config.healthCheckPath}`],
+                interval: '30s',
+                timeout: '10s',
+                retries: 3,
+                start_period: '40s'
+            };
+        }
+        
+        return {
+            version: '3.8',
+            services: {
+                [config.serviceName]: service
+            },
+            networks: {
+                [config.network]: {
+                    driver: 'overlay',
+                    attachable: true
+                }
+            }
+        };
+    }
     
-    deploy:
-      replicas: ${config.replicas}
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 3
-      resources:
-        limits:
-          cpus: '${config.cpuLimit}'
-          memory: ${config.memoryLimit}
-        reservations:
-          cpus: '0.25'
-          memory: 256M
-      labels:
-        - "com.smartango.service=gatearwayman"
-    
-    ports:
-      - "${config.hostPort}:${config.port}"
-    
-    networks:
-      - ${config.network}
-    
-    environment:
-${envVars.join('\n')}
-${healthCheckSection}
-
-networks:
-  ${config.network}:
-    driver: overlay
-    attachable: true
-`;
+    // Build YAML from config
+    function buildYAML() {
+        const composeObj = buildComposeObject();
+        return toYAML(composeObj);
     }
     
     // Render the form
