@@ -116,7 +116,7 @@ networks:
         };
         
         return React.createElement('div', { className: 'yaml-generator' },
-            React.createElement('h3', null, '⚙️ Docker Swarm Deployment Configuration'),
+            React.createElement('h3', null, 'Docker Swarm Deployment Configuration'),
             React.createElement('p', null, 'Customize your GatearwayMan deployment configuration:'),
             
             // Basic Configuration
