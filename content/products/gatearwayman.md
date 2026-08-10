@@ -26,6 +26,24 @@ Create your custom Docker Swarm deployment configuration using our interactive Y
 
 ---
 
+## Development Status
+
+GatearwayMan is organized into multiple services and features, each at different stages of development.
+
+<div id="feature-matrix-root"></div>
+
+**Status Legend:**
+
+- ✅ **Released**: Feature is production-ready and deployed
+- 🚧 **WIP**: Work in progress - actively being developed
+- 📝 **Define Requirements**: Requirements gathering phase
+- 📋 **Planned**: Planned for future development
+
+> **Note**: To update the feature status, edit the `data/gatearwayman-features.yaml` file.
+
+---
+
 ## Get Started
 
-Ready to deploy GatearwayMan? Use the configuration generator above or check out our [GitHub repository](https://github.com/smartango/gatearwayman) for manual deployment instructions.
+Ready to deploy GatearwayMan? Use the configuration generator above or arrange it your way.
+

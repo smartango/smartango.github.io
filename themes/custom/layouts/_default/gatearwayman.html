@@ -1,23 +1,10 @@
 {{ define "main" }}
 <div class="container">
     <article class="content gatearwayman-content">
-        {{ .Content }}
-        
-        {{ if .Params.showFeatureMatrix }}
-        <h2 id="development-status">Development Status</h2>
-        <p>GatearwayMan is organized into multiple services and features, each at different stages of development.</p>
-        {{ partial "feature-matrix.html" . }}
-        <p><strong>Status Legend:</strong></p>
-        <ul>
-            <li>✅ <strong>Released</strong>: Feature is production-ready and deployed</li>
-            <li>🚧 <strong>WIP</strong>: Work in progress - actively being developed</li>
-            <li>📝 <strong>Define Requirements</strong>: Requirements gathering phase</li>
-            <li>📋 <strong>Planned</strong>: Planned for future development</li>
-        </ul>
-        <blockquote>
-            <p><strong>Note</strong>: To update the feature status, edit the <code>data/gatearwayman-features.yaml</code> file.</p>
-        </blockquote>
-        {{ end }}
+        {{ $content := .Content }}
+        {{ $featureMatrixHTML := partial "feature-matrix.html" . }}
+        {{ $content = replace $content "<div id=\"feature-matrix-root\"></div>" $featureMatrixHTML }}
+        {{ $content | safeHTML }}
     </article>
 </div>
 {{ end }}
