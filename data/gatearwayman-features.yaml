@@ -7,16 +7,20 @@ features:
     status: Released
     description: Backend service that serves the GUI application
     
-  - name: Service Manager (Go Service)
-    status: Planned
+  - name: Service Manager Service
+    status: WIP
     description: Core service manager written in Go for routing and orchestration
+
+  - name: Service Manager KService
+    status: Planned
+    description: Kubernetes service for managing Service Manager instances
     
   - name: Persistent SMS Storage
-    status: Planned
+    status: WIP
     description: "Storage layer for SMS: Service Manager's Services Definitions"
     
   - name: AuthServ (Legacy)
-    status: Planned
+    status: Released
     description: Legacy authentication service based on Long-Lived JWT signed by secure algo.
     
   - name: AuthServ (Standard)
@@ -24,9 +28,17 @@ features:
     description: Modern authentication service with OAuth2 and JWT support
     
   - name: GW Image
-    status: Planned
+    status: WIP
     description: Gateway image for exposing REST API endpoints
     
   - name: HSQL Service
-    status: Planned
+    status: WIP
     description: HyperSQL database service for accessing db from gwimage's entrypoint
+
+  - name: Telemetry
+    status: WIP
+    description: Telemetry service for collecting and reporting system metrics
+  
+  - name: Support Traefik 2.x
+    status: Planned
+    description: Integration and support for Traefik 2.x as the reverse proxy and load balancer
