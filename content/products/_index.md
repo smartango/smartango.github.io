@@ -13,4 +13,4 @@ We develop distinctive productive products designed to solve real-world infrastr
 
 ## Join the Gatearway + MCP waiting list
 
-Interested in trying Gatearway + MCP? Complete the [waiting-list signup form](https://docs.google.com/forms/d/e/1FAIpQLScQ51gWNGuDGqJkSnoxp--Vb9z5A1DzKyF6QhcjndfuK1kedQ/viewform) to register your interest and request early access. We will use your submission to contact you when places become available.
+Interested in trying Gatearway + MCP? Complete the [waiting-list signup form](https://docs.google.com/forms/d/e/1FAIpQLScQ51gWNGuDGqJkSnoxp--Vb9z5A1DzKyF6QhcjndfuK1kedQ/viewform?usp=header) to register your interest and request early access. We will use your submission to contact you when places become available.

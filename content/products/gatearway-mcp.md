@@ -6,6 +6,10 @@ draft: false
 
 Gatearway lets teams define and run service entrypoints with pipelines, then expose selected services as OAuth-protected Model Context Protocol (MCP) endpoints for AI agents.
 
+## Join the waiting list
+
+Interested in trying Gatearway + MCP? [Sign up for the waiting list](https://docs.google.com/forms/d/e/1FAIpQLScQ51gWNGuDGqJkSnoxp--Vb9z5A1DzKyF6QhcjndfuK1kedQ/viewform?usp=header) to register your interest and request early access.
+
 ![Gatearway MCP generator and integration architecture](/mcp-architecture-mockup.png)
 
 ## Define services through an API
