@@ -8,7 +8,9 @@ Gatearway lets teams define and run service entrypoints with pipelines, then exp
 
 ## Join the waiting list
 
-Interested in trying Gatearway + MCP? [Sign up for the waiting list](https://docs.google.com/forms/d/e/1FAIpQLScQ51gWNGuDGqJkSnoxp--Vb9z5A1DzKyF6QhcjndfuK1kedQ/viewform?usp=header) to register your interest and request early access.
+Interested in trying Gatearway + MCP? Sign up to register your interest and request early access.
+
+<p><a class="btn btn-primary waiting-list-cta" href="https://docs.google.com/forms/d/e/1FAIpQLScQ51gWNGuDGqJkSnoxp--Vb9z5A1DzKyF6QhcjndfuK1kedQ/viewform?usp=header">Join the waiting list</a></p>
 
 ![Gatearway MCP generator and integration architecture](/mcp-architecture-mockup.png)
 

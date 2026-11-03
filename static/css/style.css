@@ -271,6 +271,11 @@ body {
     background: var(--secondary-color);
 }
 
+.waiting-list-cta {
+    display: inline-block;
+    text-decoration: none;
+}
+
 .btn-secondary {
     background: #6b7280;
     color: white;
