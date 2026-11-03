@@ -31,7 +31,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      HUGO_VERSION: 0.128.0
+      HUGO_VERSION: 0.148.2
     steps:
       - name: Install Hugo CLI
         run: |
@@ -65,6 +65,9 @@ jobs:
             --gc \
             --minify \
             --baseURL "${{ steps.pages.outputs.base_url }}/"
+          test -s ./public/products/index.html
+          test -s ./public/products/gatearway-mcp/index.html
+          test -s ./public/products/gatearwayman/index.html
       
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
