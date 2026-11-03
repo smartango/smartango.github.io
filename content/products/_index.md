@@ -2,6 +2,7 @@
 title: "Products"
 date: 2026-08-07
 draft: false
+url: "/products/"
 ---
 
 # Our Products

@@ -2,6 +2,7 @@
 title: "Gatearway + MCP"
 date: 2026-11-03
 draft: false
+url: "/products/gatearway-mcp/"
 ---
 
 Gatearway lets teams define and run service entrypoints with pipelines, then expose selected services as OAuth-protected Model Context Protocol (MCP) endpoints for AI agents.
