@@ -68,6 +68,9 @@ jobs:
           test -s ./public/products/index.html
           test -s ./public/products/gatearway-mcp/index.html
           test -s ./public/products/gatearwayman/index.html
+
+      - name: Test generated navigation
+        run: bash scripts/test-generated-navigation.sh ./public
       
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
