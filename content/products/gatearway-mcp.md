@@ -13,7 +13,7 @@ Interested in trying Gatearway + MCP? Sign up to register your interest and requ
 
 <p><a class="btn btn-primary waiting-list-cta" href="https://docs.google.com/forms/d/e/1FAIpQLScQ51gWNGuDGqJkSnoxp--Vb9z5A1DzKyF6QhcjndfuK1kedQ/viewform?usp=header">Join the waiting list</a></p>
 
-![Gatearway MCP generator and integration architecture](/mcp-architecture-mockup.png)
+![Gatearway MCP generator and integration architecture](/mcp-architecture-mockup-v2.png)
 
 ## Define services through an API
 

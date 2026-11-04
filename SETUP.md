@@ -62,3 +62,7 @@ Every time you push to the `main` branch:
 - Your changes go live within 1-2 minutes
 
 No manual deployment needed! 🚀
+
+## Disasble default deployment
+
+> gh api --method PUT repos/smartango/smartango.github.io/pages -f build_type=workflow
